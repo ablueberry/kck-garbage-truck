@@ -1,3 +1,1 @@
-# kck-garbage-truck
-test
-janio przejmuje ten projekt GOT HACKED
+#Seed of garbage truck by Jaga R. 
