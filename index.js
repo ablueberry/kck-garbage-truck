@@ -64,7 +64,7 @@ const map = (function() {
 			canvas.rect(ctx, pos_child[0], pos_child[1]);
 
 			// rysujemy połączenie między nimi
-			canvas.line(ctx, pos[0]+10, pos[1]+10, pos_child[0]+10, pos_child[1]+10)
+			canvas.line(ctx, pos[0]-10, pos[1]-10, pos_child[0]-10, pos_child[1]-10)
 		}
 	}
 
