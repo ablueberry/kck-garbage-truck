@@ -21,12 +21,50 @@ const canvas = (function() {
 		ctx.stroke();
 	}
 
+	function drawCircle(ctx, x, y)
+    {
+    var radius = 10;
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+	ctx.fillStyle = "black";
+    ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "black";
+    ctx.stroke();
+    }
+
+
 	return {
 		init: init,
 		rect: drawRect,
-		line: drawLine
+		line: drawLine,
+		circle: drawCircle
 	};
 })();
+
+function garbtruck(ctx, endx, endy, startx, starty) {
+	var loc = [startx, starty] || [ctx.canvas.width/2, ctx.canvas.height/2];
+	var delay = 10;
+	canvas.circle(ctx, loc[0], loc[1]);
+	setInterval(function(){
+	//tu sie rusza
+	//ctx.clearRect();
+	if(endx === loc[0] && endy !==loc[1]){
+		ctx.clearRect(loc[0]-11, loc[1]-11, 22, 22);
+		if(loc[1] < endy) loc[1]++;
+		else if(loc[1] > endy) loc[1]--;
+		canvas.circle(ctx, loc[0], loc[1]);
+	}
+	else if(endy === loc[1] && endx !== loc[0]){
+		ctx.clearRect(loc[0]-11, loc[1]-11, 22, 22);	
+		if(loc[0] < endx) loc[0]++;
+		else if(loc[0] > endx) loc[0]--;
+		canvas.circle(ctx, loc[0], loc[1]);	
+	}
+	else clearInterval();	
+	}, delay);
+}
 
 const map = (function() {
 	function render(ctx, graph, root_point) {
@@ -114,5 +152,7 @@ const map = (function() {
 	}
 	var ctx = canvas.init();
  	map.render(ctx, graph);
-
+	garbtruck(ctx, graph.nodes[0].position[0], graph.nodes[0].position[1], graph.nodes[2].position[0], graph.nodes[2].position[1]);
+	garbtruck(ctx, graph.nodes[5].position[0], graph.nodes[5].position[1], graph.nodes[0].position[0], graph.nodes[0].position[1]);
+	garbtruck(ctx, 20, 20, 180, 180);
 }());
