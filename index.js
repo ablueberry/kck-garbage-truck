@@ -43,13 +43,44 @@ const canvas = (function() {
 	};
 })();
 
+const play = (function() {
+	function truck(ctx, start, end) {
+		var delay = 10;
+		canvas.circle(ctx, start.x, start.y);
+		console.log('hi')
+		setInterval(function() {
+			if (end.x === start.x && end.y !== start.y) {
+				ctx.clearRect(start.x-11, start.y-11, 22, 22);
+				if (start.y < end.y) {
+					 start.y++;
+				 } else if (start.y > end.y) {
+					 start.y--;
+				 }
+				canvas.circle(ctx, start.x, start.y);
+			}
+			else if(end.y === start.y && end.x !== start.x){
+				ctx.clearRect(start.x-11, start.y-11, 22, 22);
+				if (start.x < end.x) {
+					start.x++;
+				} else if(start.x > end.x) {
+					start.x--;
+				}
+				canvas.circle(ctx, start.x, start.y);
+			} else {
+				clearInterval();
+			}
+		}, delay);
+	}
+
+	return {
+		truck: truck
+	}
+}());
 function garbtruck(ctx, endx, endy, startx, starty) {
 	var loc = [startx, starty] || [ctx.canvas.width/2, ctx.canvas.height/2];
 	var delay = 10;
 	canvas.circle(ctx, loc[0], loc[1]);
 	setInterval(function(){
-	//tu sie rusza
-	//ctx.clearRect();
 	if(endx === loc[0] && endy !==loc[1]){
 		ctx.clearRect(loc[0]-11, loc[1]-11, 22, 22);
 		if(loc[1] < endy) loc[1]++;
@@ -57,12 +88,12 @@ function garbtruck(ctx, endx, endy, startx, starty) {
 		canvas.circle(ctx, loc[0], loc[1]);
 	}
 	else if(endy === loc[1] && endx !== loc[0]){
-		ctx.clearRect(loc[0]-11, loc[1]-11, 22, 22);	
+		ctx.clearRect(loc[0]-11, loc[1]-11, 22, 22);
 		if(loc[0] < endx) loc[0]++;
 		else if(loc[0] > endx) loc[0]--;
-		canvas.circle(ctx, loc[0], loc[1]);	
+		canvas.circle(ctx, loc[0], loc[1]);
 	}
-	else clearInterval();	
+	else clearInterval();
 	}, delay);
 }
 
@@ -152,7 +183,7 @@ const map = (function() {
 	}
 	var ctx = canvas.init();
  	map.render(ctx, graph);
-	garbtruck(ctx, graph.nodes[0].position[0], graph.nodes[0].position[1], graph.nodes[2].position[0], graph.nodes[2].position[1]);
-	garbtruck(ctx, graph.nodes[5].position[0], graph.nodes[5].position[1], graph.nodes[0].position[0], graph.nodes[0].position[1]);
-	garbtruck(ctx, 20, 20, 180, 180);
+	play.truck(ctx, {x: graph.nodes[2].position[0], y: graph.nodes[2].position[1]}, {x: graph.nodes[0].position[0], y: graph.nodes[0].position[1]});
+	play.truck(ctx,  {x: graph.nodes[0].position[0], y: graph.nodes[0].position[1]}, {x: graph.nodes[5].position[0], y: graph.nodes[5].position[1]});
+	play.truck(ctx, {x: 180, y: 180}, {x: 20, y: 20});
 }());
