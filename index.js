@@ -21,10 +21,8 @@ const canvas = (function() {
 		ctx.stroke();
 	}
 
-	function drawCircle(ctx, x, y)
-    {
-    var radius = 10;
-
+	function drawCircle(ctx, x, y){
+    var radius = 5;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
 		ctx.fillStyle = "black";
@@ -32,7 +30,7 @@ const canvas = (function() {
     ctx.lineWidth = 1;
     ctx.strokeStyle = "black";
     ctx.stroke();
-    }
+  }
 
 
 	return {
@@ -44,13 +42,12 @@ const canvas = (function() {
 })();
 
 const play = (function() {
-	function road(ctx, start, end) {
+	function road(ctx, start, end, resolve) {
 		var delay = 10;
 		canvas.circle(ctx, start.x, start.y);
-		console.log('hi')
 		setInterval(function() {
 			if (end.x === start.x && end.y !== start.y) {
-				ctx.clearRect(start.x-11, start.y-11, 22, 22);
+				ctx.clearRect(start.x-7, start.y-7, 15, 15);
 				if (start.y < end.y) {
 					 start.y++;
 				 } else if (start.y > end.y) {
@@ -59,7 +56,7 @@ const play = (function() {
 				canvas.circle(ctx, start.x, start.y);
 			}
 			else if(end.y === start.y && end.x !== start.x){
-				ctx.clearRect(start.x-11, start.y-11, 22, 22);
+				ctx.clearRect(start.x-7, start.y-7, 15, 15);
 				if (start.x < end.x) {
 					start.x++;
 				} else if(start.x > end.x) {
@@ -67,22 +64,59 @@ const play = (function() {
 				}
 				canvas.circle(ctx, start.x, start.y);
 			} else {
+				resolve();
 				clearInterval();
 			}
 		}, delay);
 	}
 
 	function path(ctx, graph, path) {
-		for (var i = 0; i < path.length-2; i++) {
-			let start = {
-				x: graph.nodes[path[i]].position[0],
-				y: graph.nodes[path[i]].position[1]
+
+		var p = function(start, end){
+			return new Promise(
+				function(resolve, reject) {
+					road(ctx, start, end, resolve);
+				}
+			);
+		}
+
+		var start = {
+			x: graph.nodes[path[0]].position[0],
+			y: graph.nodes[path[0]].position[1]
+		};
+		var end = {
+			x: graph.nodes[path[1]].position[0],
+			y: graph.nodes[path[1]].position[1]
+		};
+
+		var promise = p(start, end);
+		var p1 = promise.then(() => {
+			start = {
+				x: graph.nodes[path[1]].position[0],
+				y: graph.nodes[path[1]].position[1]
 			};
-			let end = {
-				x: graph.nodes[path[i+1]].position[0],
-				y: graph.nodes[path[i+1]].position[1]
+			end = {
+				x: graph.nodes[path[1+1]].position[0],
+				y: graph.nodes[path[1+1]].position[1]
 			};
-			road(ctx, start, end);
+
+			return p(start, end);
+		});
+
+		for (var i = 2; i < path.length-2; i++) {
+				(function(i){
+					p1 = p1.then(() => {
+						start = {
+							x: graph.nodes[path[i]].position[0],
+							y: graph.nodes[path[i]].position[1]
+						};
+						end = {
+							x: graph.nodes[path[i+1]].position[0],
+							y: graph.nodes[path[i+1]].position[1]
+						};
+						return p(start, end);
+					});
+				})(i);
 		}
 	}
 
@@ -124,10 +158,11 @@ const map = (function() {
 			graph.nodes[childId].position = pos_child;
 
 			// rysujemy dziecko
-			canvas.rect(ctx, pos_child[0], pos_child[1]);
+			canvas.rect(ctx, pos_child[0]+20, pos_child[1]+20);
 
 			// rysujemy połączenie między nimi
 			canvas.line(ctx, pos[0]-10, pos[1]-10, pos_child[0]-10, pos_child[1]-10);
+			canvas.line(ctx, pos[0]+10, pos[1]+10, pos_child[0]+10, pos_child[1]+10);
 		}
 	}
 
@@ -219,14 +254,15 @@ const map = (function() {
 
  	map.render(ctx, graph, [ctx.canvas.width/2, ctx.canvas.height/2 + 200]);
 
-	// test
+	test
 	var p = djikstra_graph.findShortestPath('a', 'x');
 	play.path(ctx, graph, p);
 
 	/*
 			To do:
-			1. ogarnij play.path promisami
-			2. ogarnij wielkość kółka (zmazuje ścieżki)
-			3. nazwy domków przy nich
+			1. tło - statyczna mapa
+			2. refactoring kodu
+			3. staty miasta
+			4. input dla usera -> prolog drama
 	*/
 }());
