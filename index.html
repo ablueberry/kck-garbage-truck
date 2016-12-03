@@ -4,9 +4,18 @@
     <meta charset="utf-8">
     <title>Garbage truck - app</title>
     <link rel="stylesheet" type="text/css" href="reset.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-  	<canvas style="border: 1px solid black;"></canvas>
+  	<canvas></canvas>
+    <section class="stats">
+      <h2>Homes</h2>
+      <ul id="homes">
+      </ul>
+      <h2>Landfills</h2>
+      <ul id="landfills">
+      </ul>
+    </section>
     <script type="text/javascript" src="./dijkstra-master/graph.js"></script>
     <script type="text/javascript" src="model.js"></script>
   	<!-- <script type="text/javascript" src="index.js"></script> -->

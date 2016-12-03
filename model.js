@@ -24,10 +24,11 @@ class Truck extends Garbage {
 }
 
 class Home extends Garbage {
-  constructor(...args) {
+  constructor(id, ...args) {
     super(...args);
     this.max_garbage = Math.floor((Math.random() * 200) + 100);
     this.status = 0;
+    this.id = id;
   }
 
   setStatus(amount) {
@@ -47,10 +48,11 @@ class Home extends Garbage {
 }
 
 class Landfill extends Garbage {
-  constructor(...args) {
+  constructor(id, ...args) {
     super(...args);
     this.max_garbage = Math.floor((Math.random() * 2000) + 1000);
     this.status = 0;
+    this.id = id;
   }
 
   setStatus(amount) {
@@ -84,6 +86,7 @@ class Grass {
 }
 
 const World = function(map) {
+  var count = 0;
 
   // PRYWATNE FUNKCJE
   const autoActions = function(map) {
@@ -94,8 +97,9 @@ const World = function(map) {
 
       if (map[x][y].fill) {
         map[x][y].fill();
+
       }
-    }, 200);
+    }, 100);
 
     setInterval(function() {
       // random coord.
@@ -104,7 +108,6 @@ const World = function(map) {
 
       if (map[x][y].empty) {
         map[x][y].empty();
-        console.log(map[x][y]);
       }
     }, 50);
   }
@@ -115,10 +118,10 @@ const World = function(map) {
       return new Grass({x: x, y: y})
     } else if (symbol === 1) {
       // dom
-      return new Home({x: x, y: y})
+      return new Home(count++, {x: x, y: y})
     } else if (symbol === 2) {
       // wysypisko
-      return new Landfill({x: x, y: y})
+      return new Landfill(count++, {x: x, y: y})
     } else if (symbol === 3) {
       // smieciarka
       return new Truck({x: x, y: y})
@@ -149,6 +152,82 @@ const World = function(map) {
     this.init = init;
 };
 
+const display = (function() {
+
+  const generateStats = function(stats, map) {
+    while (stats.querySelector("#homes").firstChild) {
+      stats.querySelector("#homes").removeChild(stats.querySelector("#homes").firstChild);
+    }
+    while (stats.querySelector("#landfills").firstChild) {
+      stats.querySelector("#landfills").removeChild(stats.querySelector("#landfills").firstChild);
+    }
+    map.forEach(function(line) {
+      line.forEach(function(element) {
+
+        if (element instanceof Home || element instanceof Landfill) {
+          var precentage = {
+                full : Math.floor(element.status / element.max_garbage * 100),
+                glass : Math.floor(element.glass / element.max_garbage * 100),
+                paper : Math.floor(element.paper / element.max_garbage * 100),
+                plastic : Math.floor(element.plastic / element.max_garbage * 100),
+                other : Math.floor(element.other / element.max_garbage * 100)
+              },
+              glass = document.createTextNode("Glass: " + precentage.glass + "%"),
+              paper = document.createTextNode("Paper: " + precentage.paper + "%"),
+              plastic = document.createTextNode("Plastic: " + precentage.plastic + "%"),
+              other = document.createTextNode("Other: " + precentage.other + "%"),
+
+              li = document.createElement('LI'),
+              h = document.createElement('h3');
+
+          if (element instanceof Home) {
+            var list = stats.querySelector("#homes"),
+                id = document.createTextNode("Home #" + element.id),
+
+                full = document.createTextNode("Dumpster full: " + precentage.full + "%");
+          }
+          if (element instanceof Landfill) {
+            var list = stats.querySelector("#landfills"),
+                id = document.createTextNode("Landfill #" + element.id),
+
+                full = document.createTextNode("Landfill full: " + precentage.full + "%");
+          }
+
+          var a = [full, glass, paper, plastic, other];
+          var p = [];
+
+          a.forEach(function(el) {
+            var par = document.createElement("p");
+            var pattern = /\d+/g;
+            var res = el.textContent.match(pattern);
+
+            if (res > 40) {
+              par.className = "half-full";
+            }
+            if (res > 80) {
+              par.className = "full";
+            }
+            par.appendChild(el);
+            p.push(par);
+          })
+
+          h.appendChild(id);
+          li.appendChild(h);
+          p.forEach(function(el) {
+            li.appendChild(el);
+          })
+
+          list.appendChild(li);
+        }
+      })
+    })
+  }
+
+  return {
+    generateStats: generateStats
+  }
+
+}());
 
 (function() {
   /*
@@ -178,7 +257,15 @@ const World = function(map) {
   ];
 
   var world = new World(map);
-
   world.init();
-  console.log(world.map)
+
+
+  var stats = document.querySelector('.stats');
+
+  setInterval(function() {
+  display.generateStats(stats, world.map)
+
+}, 1000)
+
+
 }())

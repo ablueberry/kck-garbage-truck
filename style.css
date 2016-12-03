@@ -1,0 +1,42 @@
+body {
+  margin: 3rem;
+  color: #666;
+}
+
+h2 {
+  font-weight: bold;
+  line-height: 2rem;
+}
+canvas {
+  width: 500px;
+  height: 500px;
+  border: 1px solid black;
+  margin: 3rem;
+  display: inline-block;
+  float: left;
+}
+
+.stats {
+  width: 300px;
+  display: inline;
+  float: left;
+  height: 700px;
+}
+
+.stats li {
+  margin: 1rem;
+  font-size: 0.8rem;
+  float: left;
+}
+
+.stats h3 {
+  font-weight: 700;
+}
+
+.half-full {
+  color: #ffad33;
+}
+
+.full {
+  color: #F33;
+}
