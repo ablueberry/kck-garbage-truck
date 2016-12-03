@@ -5,6 +5,9 @@ class Garbage {
     this.paper = paper;
     this.plastic = plastic;
     this.other = other;
+    this.width = 33;
+    this.height = 33;
+    this.image = new Image(33, 33);
   }
 }
 class Truck extends Garbage {
@@ -29,6 +32,7 @@ class Home extends Garbage {
     this.max_garbage = Math.floor((Math.random() * 200) + 100);
     this.status = 0;
     this.id = id;
+    this.image.src = 'img/home.png';
   }
 
   setStatus(amount) {
@@ -39,7 +43,7 @@ class Home extends Garbage {
     var types = ['glass', 'paper', 'plastic', 'other'];
     var random = types[Math.floor(types.length * Math.random())];
 
-    var amount = Math.floor((Math.random() * 50) + 10);
+    var amount = Math.floor((Math.random() * 2) + 10);
     if (this.status + amount <= this.max_garbage) {
       this[random] += amount;
       this.setStatus(amount);
@@ -53,6 +57,7 @@ class Landfill extends Garbage {
     this.max_garbage = Math.floor((Math.random() * 2000) + 1000);
     this.status = 0;
     this.id = id;
+    this.image.src = 'img/landfill.png';
   }
 
   setStatus(amount) {
@@ -76,12 +81,20 @@ class Landfill extends Garbage {
 class Road {
   constructor(coordinates) {
     this.coordinates = coordinates;
+    this.width = 33;
+    this.height = 33;
+    this.image = new Image(33, 33);
+    this.image.src = 'img/road_straight.png'
   }
 }
 
 class Grass {
   constructor(coordinates) {
     this.coordinates = coordinates;
+    this.width = 33;
+    this.height = 33;
+    this.image = new Image(33, 33);
+    this.image.src = 'img/grass.png'
   }
 }
 
@@ -99,7 +112,7 @@ const World = function(map) {
         map[x][y].fill();
 
       }
-    }, 100);
+    }, 30);
 
     setInterval(function() {
       // random coord.
@@ -229,6 +242,7 @@ const display = (function() {
 
 }());
 
+
 (function() {
   /*
    * -1 - droga
@@ -249,7 +263,7 @@ const display = (function() {
     [ 0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
@@ -263,9 +277,28 @@ const display = (function() {
   var stats = document.querySelector('.stats');
 
   setInterval(function() {
-  display.generateStats(stats, world.map)
+    display.generateStats(stats, world.map)
+  }, 1000)
 
-}, 1000)
 
+
+    var canvas = document.querySelector("canvas"),
+    ctx = canvas.getContext("2d");
+
+    canvas.width = 495;
+    canvas.height = 495;
+
+    map.forEach(function(line) {
+      line.forEach(function(el) {
+        console.log(el.image)
+        el.image.onload = function() {
+          ctx.drawImage(
+              el.image,
+              el.coordinates.x*33, el.coordinates.y*33,
+              33, 33
+          );
+        }
+      })
+    })
 
 }())
