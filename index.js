@@ -158,11 +158,11 @@ const map = (function() {
 			graph.nodes[childId].position = pos_child;
 
 			// rysujemy dziecko
-			canvas.rect(ctx, pos_child[0]+20, pos_child[1]+20);
-
-			// rysujemy połączenie między nimi
-			canvas.line(ctx, pos[0]-10, pos[1]-10, pos_child[0]-10, pos_child[1]-10);
-			canvas.line(ctx, pos[0]+10, pos[1]+10, pos_child[0]+10, pos_child[1]+10);
+			// canvas.rect(ctx, pos_child[0]+20, pos_child[1]+20);
+			//
+			// // rysujemy połączenie między nimi
+			// canvas.line(ctx, pos[0]-10, pos[1]-10, pos_child[0]-10, pos_child[1]-10);
+			// canvas.line(ctx, pos[0]+10, pos[1]+10, pos_child[0]+10, pos_child[1]+10);
 		}
 	}
 
@@ -246,21 +246,21 @@ const map = (function() {
 		t: {p: 1, u: 2},
 		u: {t: 2, x: 1},
 		w: {d: 2},
-		x: {u: 1},
+		x: {u: 1}
 	};
 
-	var ctx = canvas.init();
+	var ctx = canvas.init(645, 626);
 	var djikstra_graph = new Graph(djikstra_map);
 
- 	map.render(ctx, graph, [ctx.canvas.width/2, ctx.canvas.height/2 + 200]);
+ 	map.render(ctx, graph, [ctx.canvas.width/2-130, ctx.canvas.height/2+220]);
 
-	test
-	var p = djikstra_graph.findShortestPath('a', 'x');
+	var p = djikstra_graph.findShortestPath('i', 'n');
 	play.path(ctx, graph, p);
 
+console.log(graph)
 	/*
 			To do:
-			1. tło - statyczna mapa
+			1 OK. tło - statyczna mapa
 			2. refactoring kodu
 			3. staty miasta
 			4. input dla usera -> prolog drama
