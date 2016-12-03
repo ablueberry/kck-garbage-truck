@@ -32,7 +32,7 @@ class Home extends Garbage {
     this.max_garbage = Math.floor((Math.random() * 200) + 100);
     this.status = 0;
     this.id = id;
-    this.image.src = 'img/home.png';
+    this.image.src = 'img/domek_' + Math.floor(Math.random() * 4) + '.png';
   }
 
   setStatus(amount) {
@@ -57,7 +57,7 @@ class Landfill extends Garbage {
     this.max_garbage = Math.floor((Math.random() * 2000) + 1000);
     this.status = 0;
     this.id = id;
-    this.image.src = 'img/landfill.png';
+    this.image.src = 'img/wysypisko.png';
   }
 
   setStatus(amount) {
@@ -84,7 +84,7 @@ class Road {
     this.width = 33;
     this.height = 33;
     this.image = new Image(33, 33);
-    this.image.src = 'img/road_straight.png'
+    this.image.src = 'img/droga_' + Math.floor(Math.random() * 6) + '.png'
   }
 }
 
@@ -94,7 +94,7 @@ class Grass {
     this.width = 33;
     this.height = 33;
     this.image = new Image(33, 33);
-    this.image.src = 'img/grass.png'
+    this.image.src = 'img/trawa_' + Math.floor(Math.random() * 6) + '.png'
   }
 }
 
@@ -214,7 +214,7 @@ const display = (function() {
             var pattern = /\d+/g;
             var res = el.textContent.match(pattern);
 
-            if (res > 40) {
+            if (res > 33) {
               par.className = "half-full";
             }
             if (res > 80) {
@@ -255,12 +255,12 @@ const display = (function() {
   const map = [
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  1,  0,  1,  0,  0,  0,  0,  0,  2,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  1,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  1, -1,  1,  0,  0,  0,  0,  0,  2,  0,  0],
+    [ 0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  1, -1,  1,  0,  0,  0,  0,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  0, -1,  1,  0,  0,  0,  1,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
@@ -299,6 +299,7 @@ const display = (function() {
           );
         }
       })
-    })
+    });
+
 
 }())
