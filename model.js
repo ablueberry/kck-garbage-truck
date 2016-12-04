@@ -24,9 +24,14 @@ class Truck extends Garbage {
   }
 
 
-  pick(type) {}
+  pick(from) {
+    this.other = from.clear();
+  }
 
-  leave(type) {}
+  leave(to) {
+    to.other = this.other;
+    this.other = 0;
+  }
 
 
 }
@@ -53,6 +58,18 @@ class Home extends Garbage {
       this[random] += amount;
       this.setStatus(amount);
     }
+  }
+
+  clear() {
+    var s = this.status;
+    this.amount = 0;
+    this.status = 0;
+    this.paper = 0;
+    this.plastic = 0;
+    this.glass = 0;
+    this.other = 0;
+    console.log(s);
+    return s;
   }
 }
 
@@ -261,6 +278,11 @@ const display = (function() {
               el.coordinates.x*33, el.coordinates.y*33,
               33, 33
           );
+          if (el instanceof Home || el instanceof Landfill) {
+            ctx.fillStyle = "white"
+            ctx.font = "15px Georgia";
+            ctx.fillText('#' + el.id, el.coordinates.x*33 - 10, el.coordinates.y*33 + 10)
+          }
         }
       })
     });
@@ -275,18 +297,25 @@ const display = (function() {
 
   const moveTruck = function(to, truck) {
     var interval = setInterval(function () {
-      if (truck.coordinates.x !== to.x || truck.coordinates.y !== to.y) {
-        if (truck.coordinates.x < to.x) {
-          truck.coordinates.x += 0.1;
-        } else if (truck.coordinates.x > to.x){
-          truck.coordinates.x -= 0.1;
+      console.log('hiiii')
+      if (truck.coordinates.x !== to.coordinates.x || truck.coordinates.y !== to.coordinates.y) {
+        if (truck.coordinates.x < to.coordinates.x) {
+          truck.coordinates.x += 0.25;
+        } else if (truck.coordinates.x > to.coordinates.x){
+          truck.coordinates.x -= 0.25;
         }
-        if (truck.coordinates.y < to.y) {
-          truck.coordinates.y += 0.1;
-        } else if (truck.coordinates.y > to.y){
-          truck.coordinates.y -= 0.1;
+        if (truck.coordinates.y < to.coordinates.y) {
+          truck.coordinates.y += 0.25;
+        } else if (truck.coordinates.y > to.coordinates.y){
+          truck.coordinates.y -= 0.25;
         }
       } else {
+        if (to instanceof Home) {
+          truck.pick(to);
+        }
+        if (to instanceof Landfill) {
+          truck.leave(to);
+        }
         clearInterval(interval);
       }
     }, 100);
@@ -335,6 +364,7 @@ const display = (function() {
 
   var canvas = document.querySelector("canvas"),
   ctx = canvas.getContext("2d");
+
   canvas.width = 495;
   canvas.height = 495;
 
@@ -353,6 +383,17 @@ const display = (function() {
 
 
   display.animate(ctx, world.map, truck);
-  display.moveTruck({x: 10, y: 10}, truck)
+
+  var input = document.querySelector("input");
+  input.onchange = function() {
+    var ptrn = /[0-9]*[0-9]/g;
+    var coord = this.value.match(ptrn);
+    coord.forEach(function(e, i) {
+      coord[i] =  parseInt(e);
+    })
+    console.log(coord)
+    display.moveTruck(world.map[coord[0]][coord[1]], truck);
+  }
+
 
 }())
