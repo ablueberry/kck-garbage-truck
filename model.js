@@ -8,16 +8,21 @@ class Garbage {
     this.width = 33;
     this.height = 33;
     this.image = new Image(33, 33);
+    this.ready = false;
+    var that = this;
+    this.image.onload = function () {
+      that.ready = true;
+    }
   }
 }
+
 class Truck extends Garbage {
   constructor(...args) {
     super(...args);
     this.max_garbage = Math.floor((Math.random() * 700) + 500);
-
+    this.image.src = 'img/smieciarka_0.png';
   }
 
-  go(from, to) {}
 
   pick(type) {}
 
@@ -84,7 +89,12 @@ class Road {
     this.width = 33;
     this.height = 33;
     this.image = new Image(33, 33);
-    this.image.src = 'img/droga_' + Math.floor(Math.random() * 6) + '.png'
+    this.image.src = 'img/droga_' + Math.floor(Math.random() * 6) + '.png';
+    this.ready = false;
+    var that = this;
+    this.image.onload = function () {
+      that.ready = true;
+    }
   }
 }
 
@@ -94,7 +104,12 @@ class Grass {
     this.width = 33;
     this.height = 33;
     this.image = new Image(33, 33);
-    this.image.src = 'img/trawa_' + Math.floor(Math.random() * 6) + '.png'
+    this.image.src = 'img/trawa_' + Math.floor(Math.random() * 6) + '.png';
+    this.ready = false;
+    var that = this;
+    this.image.onload = function () {
+      that.ready = true;
+    }
   }
 }
 
@@ -236,8 +251,56 @@ const display = (function() {
     })
   }
 
+  const renderMap = function(ctx, map, truck) {
+
+    map.forEach(function(line) {
+      line.forEach(function(el) {
+        if (el.ready) {
+          ctx.drawImage(
+              el.image,
+              el.coordinates.x*33, el.coordinates.y*33,
+              33, 33
+          );
+        }
+      })
+    });
+    if (truck.ready) {
+      ctx.drawImage(
+        truck.image,
+        truck.coordinates.x*33, truck.coordinates.y*33,
+        33, 33
+      );
+    }
+  }
+
+  const moveTruck = function(to, truck) {
+    var interval = setInterval(function () {
+      if (truck.coordinates.x !== to.x || truck.coordinates.y !== to.y) {
+        if (truck.coordinates.x < to.x) {
+          truck.coordinates.x += 0.1;
+        } else if (truck.coordinates.x > to.x){
+          truck.coordinates.x -= 0.1;
+        }
+        if (truck.coordinates.y < to.y) {
+          truck.coordinates.y += 0.1;
+        } else if (truck.coordinates.y > to.y){
+          truck.coordinates.y -= 0.1;
+        }
+      } else {
+        clearInterval(interval);
+      }
+    }, 100);
+  }
+  const animate = function(ctx, map, truck) {
+    var interval = setInterval(function () {
+      renderMap(ctx, map, truck);
+    }, 200);
+  }
   return {
-    generateStats: generateStats
+    generateStats: generateStats,
+    renderMap: renderMap,
+    animate: animate,
+    moveTruck: moveTruck
   }
 
 }());
@@ -256,19 +319,25 @@ const display = (function() {
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  1, -1,  1,  0,  0,  0,  0,  0,  2,  0,  0],
-    [ 0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  1, -1,  1,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0, -1,  0,  0],
+    [ 0,  0,  0,  0,  1, -1,  1,  0,  0,  0,  0,  0, -1,  0,  0],
+    [ 0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0, -1,  0,  0],
+    [ 0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0, -1,  0,  0],
+    [ 0,  0,  0,  0,  0, -1,  1,  0,  0,  0,  1,  0, -1,  0,  0],
+    [ 0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1,  0, -1,  0,  0],
+    [ 0,  0,  1, -1, -1, -1,  0,  0,  0,  0, -1, -1, -1,  0,  0],
+    [ 0,  0,  0,  0,  0, -1,  0,  0,  0,  0, -1,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0, -1,  1,  0,  0,  0,  1,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0]
   ];
+
+  var canvas = document.querySelector("canvas"),
+  ctx = canvas.getContext("2d");
+  canvas.width = 495;
+  canvas.height = 495;
+
 
   var world = new World(map);
   world.init();
@@ -280,26 +349,10 @@ const display = (function() {
     display.generateStats(stats, world.map)
   }, 1000)
 
+  var truck = new Truck({x: 5, y: 5});
 
 
-    var canvas = document.querySelector("canvas"),
-    ctx = canvas.getContext("2d");
-
-    canvas.width = 495;
-    canvas.height = 495;
-
-    map.forEach(function(line) {
-      line.forEach(function(el) {
-        console.log(el.image)
-        el.image.onload = function() {
-          ctx.drawImage(
-              el.image,
-              el.coordinates.x*33, el.coordinates.y*33,
-              33, 33
-          );
-        }
-      })
-    });
-
+  display.animate(ctx, world.map, truck);
+  display.moveTruck({x: 10, y: 10}, truck)
 
 }())
