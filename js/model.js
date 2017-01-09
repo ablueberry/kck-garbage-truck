@@ -24,12 +24,12 @@ class Truck extends Garbage {
   }
 
 
-  pick(from) {
-    this.other = from.clear();
+  pick(from, what) {
+      this.other += from.clear(what);
   }
 
-  leave(to) {
-    to.other = this.other;
+  leave(to, what) {
+    to.status = this.other;
     this.other = 0;
   }
 
@@ -60,15 +60,15 @@ class Home extends Garbage {
     }
   }
 
-  clear() {
-    var s = this.status;
-    this.amount = 0;
-    this.status = 0;
-    this.paper = 0;
-    this.plastic = 0;
-    this.glass = 0;
-    this.other = 0;
-    console.log(s);
+  clear(what) {
+    var s;
+    for (let e in what) {
+      if (what[e] && this[e]) {
+        s = this[e];
+        this.status -= this[e];
+        this[e] = 0;
+      }
+    }
     return s;
   }
 }
@@ -76,7 +76,7 @@ class Home extends Garbage {
 class Landfill extends Garbage {
   constructor(id, ...args) {
     super(...args);
-    this.max_garbage = Math.floor((Math.random() * 2000) + 1000);
+    this.max_garbage = Math.floor((Math.random() * 1000) + 500);
     this.status = 0;
     this.id = id;
     this.image.src = 'img/wysypisko.png';
@@ -230,15 +230,17 @@ const display = (function() {
                 id = document.createTextNode("Home #" + element.id),
 
                 full = document.createTextNode("Dumpster full: " + precentage.full + "%");
+                var a = [full, glass, paper, plastic, other];
           }
           if (element instanceof Landfill) {
             var list = stats.querySelector("#landfills"),
                 id = document.createTextNode("Landfill #" + element.id),
 
                 full = document.createTextNode("Landfill full: " + precentage.full + "%");
+                var a = [full];
           }
 
-          var a = [full, glass, paper, plastic, other];
+          // var a = [full, glass, paper, plastic, other];
           var p = [];
 
           a.forEach(function(el) {
@@ -295,9 +297,8 @@ const display = (function() {
     }
   }
 
-  const moveTruck = function(to, truck) {
+  const moveTruck = function(to, truck, pick, leave, what) {
     var interval = setInterval(function () {
-      console.log('hiiii')
       if (truck.coordinates.x !== to.coordinates.x || truck.coordinates.y !== to.coordinates.y) {
         if (truck.coordinates.x < to.coordinates.x) {
           truck.coordinates.x += 0.25;
@@ -310,11 +311,11 @@ const display = (function() {
           truck.coordinates.y -= 0.25;
         }
       } else {
-        if (to instanceof Home) {
-          truck.pick(to);
+        if (to instanceof Home && pick) {
+          truck.pick(to, what);
         }
-        if (to instanceof Landfill) {
-          truck.leave(to);
+        if (to instanceof Landfill && leave) {
+          truck.leave(to, what);
         }
         clearInterval(interval);
       }
@@ -356,7 +357,7 @@ const display = (function() {
     [ 0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1,  0, -1,  0,  0],
     [ 0,  0,  1, -1, -1, -1,  0,  0,  0,  0, -1, -1, -1,  0,  0],
     [ 0,  0,  0,  0,  0, -1,  0,  0,  0,  0, -1,  0,  0,  0,  0],
-    [ 0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0],
+    [ 0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1,  1,  0,  0,  0],
     [ 0,  0,  0,  0,  0, -1,  1,  0,  0,  0,  1,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0]
@@ -384,15 +385,66 @@ const display = (function() {
 
   display.animate(ctx, world.map, truck);
 
+
+  var buildings = {};
+  map.forEach(function(line, x) {
+    line.forEach(function(el, y) {
+      if (el.id !== undefined) {
+        var id = "#" + el.id;
+        buildings[id] = [x, y];
+      }
+    })
+  })
+
+  // Obsługa inputa przeniesiona do controllera
+
   var input = document.querySelector("input");
   input.onchange = function() {
-    var ptrn = /[0-9]*[0-9]/g;
-    var coord = this.value.match(ptrn);
-    coord.forEach(function(e, i) {
-      coord[i] =  parseInt(e);
+    var ptrn = /[0-9]*[0-9]|#\d+|zabierz|zostaw|papier|plastik|szkło|inne|wszystko|śmieci/gi;
+    var value = this.value.match(ptrn);
+    var coord = [];
+    var leave = false, pick = false,
+        what =  {
+          plastic: false,
+          glass: false,
+          paper: false,
+          other: false
+        };
+
+    value.forEach(function(e) {
+      e = e.toString();
+      if (/zabierz/gi.test(e)) {
+        pick = true;
+      } else if (/zostaw/gi.test(e)) {
+        leave = true;
+      } else if (/#\d+/gi.test(e)) {
+        coord = buildings[e];
+      } else if (/[0-9]*[0-9]/gi.test(e)) {
+        let x =  parseInt(e);
+        coord.push(x);
+      }
+
+      if (pick === true || leave === true) {
+        if(/papier/gi.test(e)) {
+          what.paper = true;
+        }  else if(/plastik/gi.test(e)) {
+          what.plastic = true;
+        } else if(/szkło/gi.test(e)) {
+          what.glass = true
+        } else if(/inne/gi.test(e)) {
+          what.other = true;
+        } else if(/wszystko|śmieci/gi.test(e)){
+          for(e in what) {
+            what[e] = true;
+          }
+        }
+      }
     })
-    console.log(coord)
-    display.moveTruck(world.map[coord[0]][coord[1]], truck);
+    if (!coord[0] || !coord[1]) {
+      coord = Object.keys(truck.coordinates).map(x => truck.coordinates[x]);
+    }
+
+    display.moveTruck(world.map[coord[0]][coord[1]], truck, pick, leave, what);
   }
 
 
