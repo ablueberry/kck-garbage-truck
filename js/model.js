@@ -450,10 +450,27 @@ const display = (function() {
 
 }())
 
-function EventLog() {
+const EventLog = (function(){
   this.logged_events = [];
   
-  EventLog.prototype.add_event = function(content) {
+  const add_event = function(content) {
+    this.logged_events.push(content);
+  }
+
+  const print_event = function(which = this.logged_events.length) {
+    return this.logged_events[which];
+  }
+
+  const print_events = function(how_many = this.logged_events.length) {
+    var ret = "";
+    for(var i = this.logged_events.length-how_many; i < this.logged_events.length; i++){
+      ret += i + ". " + this.print_event(i) + "\n"
+    }
+    return ret; 
+  }
+});
+    /*
+    EventLog.prototype.add_event = function(content) {
     this.logged_events.push(content);
   }
 
@@ -468,5 +485,5 @@ function EventLog() {
       ret += i + ". " + this.print_event(i) + "\n"
     }
     return ret;
-  }
-}
+  }*/
+
