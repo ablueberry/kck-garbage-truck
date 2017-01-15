@@ -451,39 +451,26 @@ const display = (function() {
 }())
 
 const EventLog = (function(){
-  this.logged_events = [];
+  var logged_events = [];
   
   const add_event = function(content) {
-    this.logged_events.push(content);
+    logged_events.push(content);
   }
 
-  const print_event = function(which = this.logged_events.length) {
-    return this.logged_events[which];
+  const print_event = function(which = logged_events.length) {
+    return logged_events[which];
   }
 
-  const print_events = function(how_many = this.logged_events.length) {
+  const print_events = function(how_many = logged_events.length) {
     var ret = "";
-    for(var i = this.logged_events.length-how_many; i < this.logged_events.length; i++){
-      ret += i + ". " + this.print_event(i) + "\n"
+    for(var i = logged_events.length-how_many; i < logged_events.length; i++){
+      ret += (i+1) + ".\t" + this.print_event(i) + "\n"
     }
     return ret; 
   }
-});
-    /*
-    EventLog.prototype.add_event = function(content) {
-    this.logged_events.push(content);
+  return {
+    add_event: add_event,
+    print_event: print_event,
+    print_events: print_events
   }
-
-  EventLog.prototype.print_event = function(which = this.logged_events.length) {
-    //return which + ". " + this.logged_events[which] + "\n";
-    return this.logged_events[which];
-}
-
-  EventLog.prototype.print_events = function(how_many = this.logged_events.length) {
-    var ret = "";
-    for(var i = this.logged_events.length-how_many; i < this.logged_events.length; i++){
-      ret += i + ". " + this.print_event(i) + "\n"
-    }
-    return ret;
-  }*/
-
+}());
