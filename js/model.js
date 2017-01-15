@@ -380,6 +380,8 @@ const display = (function() {
     display.generateStats(stats, world.map)
   }, 1000)
 
+  var log = document
+
   var truck = new Truck({x: 5, y: 5});
 
 
@@ -400,6 +402,7 @@ const display = (function() {
 
   var input = document.querySelector("input");
   input.onchange = function() {
+    EventLog.add_order(input.value); //event log księguje input
     var dom_log = null; // na użytek eventloga
     var ptrn = /[0-9]*[0-9]|#\d+|zabierz|zostaw|papier|plastik|szkło|inne|wszystko|śmieci/gi;
     var value = this.value.match(ptrn);
@@ -454,25 +457,13 @@ const display = (function() {
 
 const EventLog = (function(){
   var logged_events = [];
-  
-  const add_event = function(content) {
-    logged_events.push(content);
-  }
 
-  const create_order_approval = function(pick,leave,what,dom) {
-    var ret = ""; 
-    if(pick) ret += "jadę odebrać z domu nr " + dom + " ";
-    if(leave) ret += "jadę zostawić ";
-    if(what.paper) ret += "papier ";
-    if(what.plastic) ret += "plastik ";
-    if(what.glass) ret += "szkło ";
-    if(what.other) ret+= "śmieci mieszane";
-    if(leave) ret += " na śmietnisku";
-    return ret;
+  const add_order = function(content) {
+    add_event("user:\t" + content);
   }
 
   const add_order_approval = function(pick,leave,what,dom) {
-    add_event(create_order_approval(pick,leave,what,dom));
+    add_event("truck:\t" + create_order_approval(pick,leave,what,dom));
   }
 
   const print_event = function(which = logged_events.length) {
@@ -482,14 +473,40 @@ const EventLog = (function(){
   const print_events = function(how_many = logged_events.length) {
     var ret = "";
     for(var i = logged_events.length-how_many; i < logged_events.length; i++){
-      ret += (i+1) + ".\t" + this.print_event(i) + "\n"
+      ret += (i+1) + ".\t" + print_event(i) + "\n"
     }
     return ret; 
   }
+
+  const update_log = function() {
+    
+  }
+
+//funkcje prywatne
+  const create_order_approval = function(pick,leave,what,dom) {
+    var ret = ""; 
+    if(pick) ret += "jadę odebrać z domu nr " + dom + "";
+    if(leave) ret += "jadę zostawić";
+    if(what.paper) ret += " papier";
+    if(what.plastic && what.paper) ret += ", plastik"
+    else if(what.plastic) ret += " plastik";
+    if(what.glass && (what.plastic || what.paper)) ret += ", szkło"
+    else if(what.glass) ret += " szkło";
+    if(what.other && (what.plastic || what.paper || what.glass)) ret+= ", śmieci mieszane"
+    else if(what.other) ret+= " śmieci mieszane";
+    if(leave) ret += " na śmietnisku";
+    return ret;
+  }
+  
+  const add_event = function(content) {
+    logged_events.push(content);
+  }
+
   return {
+    add_order: add_order,
     add_order_approval: add_order_approval,
-    add_event: add_event,
     print_event: print_event,
-    print_events: print_events
+    print_events: print_events,
+    update_log: update_log
   }
 }());

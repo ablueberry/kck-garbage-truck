@@ -45,3 +45,24 @@ canvas {
 .full {
   color: #F33;
 }
+
+.log {
+  width: 300px;
+  display: inline;
+  float: left;
+  height: 700px;
+  background:#bee9f7;
+}
+
+.log h1 {
+  background: white;
+  color:black; 
+  padding: 10px 0px;
+}
+
+.log li {
+  color: black;
+  font-size: 0.8rem;
+  float: left;
+  padding: 3px 0px;
+}
