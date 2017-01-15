@@ -449,3 +449,24 @@ const display = (function() {
 
 
 }())
+
+function EventLog() {
+  this.logged_events = [];
+  
+  EventLog.prototype.add_event = function(content) {
+    this.logged_events.push(content);
+  }
+
+  EventLog.prototype.print_event = function(which = this.logged_events.length) {
+    //return which + ". " + this.logged_events[which] + "\n";
+    return this.logged_events[which];
+}
+
+  EventLog.prototype.print_events = function(how_many = this.logged_events.length) {
+    var ret = "";
+    for(var i = this.logged_events.length-how_many; i < this.logged_events.length; i++){
+      ret += i + ". " + this.print_event(i) + "\n"
+    }
+    return ret;
+  }
+}
