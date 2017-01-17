@@ -42,6 +42,7 @@ class Home extends Garbage {
     this.max_garbage = Math.floor((Math.random() * 200) + 100);
     this.status = 0;
     this.id = id;
+    this.warning_flag = false; //określa, czy ostrzegać o przepełnieniu -> EventLog.add_capacity_warning
     this.image.src = 'img/domek_' + Math.floor(Math.random() * 4) + '.png';
   }
 
@@ -57,10 +58,16 @@ class Home extends Garbage {
     if (this.status + amount <= this.max_garbage) {
       this[random] += amount;
       this.setStatus(amount);
+      if((this.status/this.max_garbage * 100) >= 80) {
+        if(!this.warning_flag) EventLog.add_capacity_warning(this.id); 
+        this.warning_flag = true;
+      }
     }
   }
 
   clear(what) {
+    this.warning_flag = false;
+    EventLog.add_order_execution_info(this.id);
     var s;
     for (let e in what) {
       if (what[e] && this[e]) {
@@ -466,29 +473,26 @@ const EventLog = (function(){
     });
   }
 
+  const add_capacity_warning = function(where) {
+    add_event({
+      who: "info",
+      input: "śmietnik zapełniony w 80% w domku nr " + where
+    })
+  }
+
+  const add_order_execution_info = function(where) {
+    add_event({
+      who: "truck",
+      input: "wykonałam zadanie w domu nr " + where
+    })
+  }
+
   const add_order_approval = function(pick,leave,what,dom) {
     add_event({
       who: "truck",
       input: create_order_approval(pick,leave,what,dom)
     });
   }
-
-  /*const add_order_execution = function(from, what)
-  {
-    var ret = "zabrano";
-    if(what.paper) ret += " papier";
-    if(what.plastic && what.paper) ret += ", plastik"
-    else if(what.plastic) ret += " plastik";
-    if(what.glass && (what.plastic || what.paper)) ret += ", szkło"
-    else if(what.glass) ret += " szkło";
-    if(what.other && (what.plastic || what.paper || what.glass)) ret+= ", śmieci mieszane"
-    else if(what.other) ret+= " śmieci mieszane";
-    ret = " z domku nr " + what.Home.id;
-    add_event({
-      who: "home",
-      input: ret
-    })
-  }*/
 
   const print_event = function(which = logged_events.length-1) {
     return logged_events[which];
@@ -502,18 +506,6 @@ const EventLog = (function(){
     }
     return ret; 
   }
-
-  /*const update_log = function() {
-    var d = document.querySelector(".log");
-    logged_events.forEach(function(iter) {
-      var h = document.createElement("P");
-      var s = document.createElement("SPAN");
-      s.className = "who " + iter.who;
-      var t = document.createTextNode(iter.input);
-      d.appendChild(h.appendChild(s.appendChild(t)));
-    }) 
-  }*/
-
 
 //funkcje prywatne
   const create_order_approval = function(pick,leave,what,dom) {
@@ -552,7 +544,8 @@ const EventLog = (function(){
   return {
     add_order: add_order,
     add_order_approval: add_order_approval,
-    //add_order_execution: add_order_execution,
+    add_capacity_warning: add_capacity_warning,
+    add_order_execution_info: add_order_execution_info,
     print_event: print_event,
     print_events: print_events
   }

@@ -74,7 +74,7 @@ canvas {
   font-weight: bold;
 }
 
-.info:after {
+.info:before {
   content: "Info: ";
   color: green;
   font-weight: bold;
