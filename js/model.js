@@ -403,7 +403,7 @@ const display = (function() {
   var input = document.querySelector("input");
   input.onchange = function() {
     var dom_log = null; // na użytek eventloga
-    EventLog.add_order(input.value); //event log księguje input
+    EventLog.add_order(this.value); //event log księguje input
     var ptrn = /[0-9]*[0-9]|#\d+|zabierz|zostaw|papier|plastik|szkło|inne|wszystko|śmieci/gi;
     var value = this.value.match(ptrn);
     var coord = [];
@@ -449,8 +449,8 @@ const display = (function() {
     if (!coord[0] || !coord[1]) {
       coord = Object.keys(truck.coordinates).map(x => truck.coordinates[x]);
     }
-    EventLog.add_order_approval(pick, leave, what, dom_log);
     display.moveTruck(world.map[coord[0]][coord[1]], truck, pick, leave, what);
+    EventLog.add_order_approval(pick, leave, what, dom_log);
   }
 
 
@@ -549,8 +549,8 @@ const EventLog = (function(){
 
   return {
     add_order: add_order,
-    //add_order_approval: add_order_approval,
-    add_order_execution: add_order_execution,
+    add_order_approval: add_order_approval,
+    //add_order_execution: add_order_execution,
     print_event: print_event,
     print_events: print_events
   }
