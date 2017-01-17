@@ -464,12 +464,30 @@ const EventLog = (function(){
       input: content
     });
   }
-
+/*
   const add_order_approval = function(pick,leave,what,dom) {
     add_event({
       who: "truck",
       input: create_order_approval(pick,leave,what,dom)
     });
+  }*/
+
+  const add_order_execution = function(from, what)
+  {
+    var ret = "zabrano";
+    if(what.paper) ret += " papier";
+    if(what.plastic && what.paper) ret += ", plastik"
+    else if(what.plastic) ret += " plastik";
+    if(what.glass && (what.plastic || what.paper)) ret += ", szkło"
+    else if(what.glass) ret += " szkło";
+    if(what.other && (what.plastic || what.paper || what.glass)) ret+= ", śmieci mieszane"
+    else if(what.other) ret+= " śmieci mieszane";
+    ret = " z domku nr " + what.Home.id;
+    add_event({
+      who: "home",
+      input: ret
+    }
+    )
   }
 
   const print_event = function(which = logged_events.length) {
@@ -483,10 +501,6 @@ const EventLog = (function(){
       ret += (i+1) + ".\t" + temp.who + ": " + temp.input + "\n"
     }
     return ret; 
-  }
-
-  const update_log = function() {
-    
   }
 
 //funkcje prywatne
@@ -511,9 +525,9 @@ const EventLog = (function(){
 
   return {
     add_order: add_order,
-    add_order_approval: add_order_approval,
+    //add_order_approval: add_order_approval,
+    add_order_execution: add_order_execution,
     print_event: print_event,
-    print_events: print_events,
-    update_log: update_log
+    print_events: print_events
   }
 }());
