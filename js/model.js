@@ -402,8 +402,8 @@ const display = (function() {
 
   var input = document.querySelector("input");
   input.onchange = function() {
-    EventLog.add_order(input.value); //event log księguje input
     var dom_log = null; // na użytek eventloga
+    EventLog.add_order(input.value); //event log księguje input
     var ptrn = /[0-9]*[0-9]|#\d+|zabierz|zostaw|papier|plastik|szkło|inne|wszystko|śmieci/gi;
     var value = this.value.match(ptrn);
     var coord = [];
@@ -414,6 +414,7 @@ const display = (function() {
           paper: false,
           other: false
         };
+  //
 
     value.forEach(function(e) {
       e = e.toString();
@@ -464,15 +465,15 @@ const EventLog = (function(){
       input: content
     });
   }
-/*
+
   const add_order_approval = function(pick,leave,what,dom) {
     add_event({
       who: "truck",
       input: create_order_approval(pick,leave,what,dom)
     });
-  }*/
+  }
 
-  const add_order_execution = function(from, what)
+  /*const add_order_execution = function(from, what)
   {
     var ret = "zabrano";
     if(what.paper) ret += " papier";
@@ -486,11 +487,10 @@ const EventLog = (function(){
     add_event({
       who: "home",
       input: ret
-    }
-    )
-  }
+    })
+  }*/
 
-  const print_event = function(which = logged_events.length) {
+  const print_event = function(which = logged_events.length-1) {
     return logged_events[which];
   }
 
@@ -502,6 +502,18 @@ const EventLog = (function(){
     }
     return ret; 
   }
+
+  /*const update_log = function() {
+    var d = document.querySelector(".log");
+    logged_events.forEach(function(iter) {
+      var h = document.createElement("P");
+      var s = document.createElement("SPAN");
+      s.className = "who " + iter.who;
+      var t = document.createTextNode(iter.input);
+      d.appendChild(h.appendChild(s.appendChild(t)));
+    }) 
+  }*/
+
 
 //funkcje prywatne
   const create_order_approval = function(pick,leave,what,dom) {
@@ -518,9 +530,21 @@ const EventLog = (function(){
     if(leave) ret += " na śmietnisku";
     return ret;
   }
+
+  const update_log = function(a, b) {
+    var event = print_event();
+    var d = document.querySelector(".logs");
+    //logged_events.forEach(function(iter) {
+    var h = document.createElement("P");
+    var s = document.createElement("SPAN");
+    s.className = "who " + a;
+    var t = document.createTextNode(b);
+    d.appendChild(h.appendChild(s.appendChild(t))); 
+  }
   
   const add_event = function(content) {
     logged_events.push(content);
+    update_log(content.who, content.input);
   }
 
   return {
