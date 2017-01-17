@@ -459,11 +459,17 @@ const EventLog = (function(){
   var logged_events = [];
 
   const add_order = function(content) {
-    add_event("user:\t" + content);
+    add_event({
+      who: "you",
+      input: content
+    });
   }
 
   const add_order_approval = function(pick,leave,what,dom) {
-    add_event("truck:\t" + create_order_approval(pick,leave,what,dom));
+    add_event({
+      who: "truck",
+      input: create_order_approval(pick,leave,what,dom)
+    });
   }
 
   const print_event = function(which = logged_events.length) {
@@ -473,7 +479,8 @@ const EventLog = (function(){
   const print_events = function(how_many = logged_events.length) {
     var ret = "";
     for(var i = logged_events.length-how_many; i < logged_events.length; i++){
-      ret += (i+1) + ".\t" + print_event(i) + "\n"
+      temp = print_event(i);
+      ret += (i+1) + ".\t" + temp.who + ": " + temp.input + "\n"
     }
     return ret; 
   }
