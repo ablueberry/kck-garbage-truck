@@ -534,12 +534,14 @@ const EventLog = (function(){
   const update_log = function(a, b) {
     var event = print_event();
     var d = document.querySelector(".logs");
-    //logged_events.forEach(function(iter) {
     var h = document.createElement("P");
+   // h.innerHTML = '<span class = "' + a + '"></span>' + b;
     var s = document.createElement("SPAN");
     s.className = "who " + a;
     var t = document.createTextNode(b);
-    d.appendChild(h.appendChild(s.appendChild(t))); 
+    s.appendChild(t);
+    h.appendChild(s);
+    d.appendChild(h);
   }
   
   const add_event = function(content) {

@@ -61,14 +61,14 @@ canvas {
   line-height: 1.2rem;
 }
 
-.you:after {
+.you:before {
   content: "Ty: ";
   color: black;
   font-weight: bold;
   text-align: right;
 }
 
-.truck:after {
+.truck:before {
   content: "Śmieciarka: ";
   color: blue;
   font-weight: bold;
