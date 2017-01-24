@@ -410,8 +410,10 @@ const display = (function() {
   input.onchange = function() {
     var home = null; // na użytek eventloga
     eventLog.addOrder(this.value); //event log księguje input
+    var sense = false; //sprawdza, czy instrukcja ma jakikolwiek sens
     var ptrn = /[0-9]*[0-9]|#\d+|zabierz|zostaw|papier|plastik|szkło|inne|wszystko|śmieci/gi;
     var value = this.value.match(ptrn);
+    if(value == null) eventLog.addOrderFail();
     var coord = [];
     var leave = false, pick = false,
         what =  {
@@ -454,8 +456,13 @@ const display = (function() {
     if (!coord[0] || !coord[1]) {
       coord = Object.keys(truck.coordinates).map(x => truck.coordinates[x]);
     }
-    display.moveTruck(world.map[coord[0]][coord[1]], truck, pick, leave, what);
-    eventLog.addOrderApproval(pick, leave, what, home);
+    if (home === null || !pick && !leave || !(what.paper || what.plastic || what.glass || what.other)) {
+      eventLog.addOrderFail();
+    } //sprawdzam, czy rozkaz zawiera wszystkie potrzebne parametry
+    else {
+      display.moveTruck(world.map[coord[0]][coord[1]], truck, pick, leave, what);
+      eventLog.addOrderApproval(pick, leave, what, home);
+    }
   }
 }());
 
@@ -491,6 +498,13 @@ const eventLog = (function(){
     });
   }
 
+  const addOrderFail = function() {
+    addEvent({
+      who: "truck",
+      input: "nie rozumiem polecenia"
+    })
+  }
+
   const printEvent = function(which = events.length-1) {
     return events[which];
   }
@@ -507,21 +521,21 @@ const eventLog = (function(){
 //funkcje prywatne
   const createOrder = function(pick,leave,what,dom) {
     var ret = "";
+      if (pick) ret += "jadę odebrać z domu nr " + dom;
+      if (leave) ret += "jadę zostawić";
 
-    if (pick) ret += "jadę odebrać z domu nr " + dom + "";
-    if (leave) ret += "jadę zostawić";
-    if (what.paper) ret += " papier";
+      if (what.paper) ret += " papier";
 
-    if (what.plastic && what.paper) ret += ", plastik";
-    else if (what.plastic) ret += " plastik";
+      if (what.plastic && what.paper) ret += ", plastik";
+      else if (what.plastic) ret += " plastik";
 
-    if (what.glass && (what.plastic || what.paper)) ret += ", szkło";
-    else if (what.glass) ret += " szkło";
+      if (what.glass && (what.plastic || what.paper)) ret += ", szkło";
+      else if (what.glass) ret += " szkło";
 
-    if (what.other && (what.plastic || what.paper || what.glass)) ret += ", śmieci mieszane";
-    else if (what.other) ret += " śmieci mieszane";
+      if (what.other && (what.plastic || what.paper || what.glass)) ret += ", śmieci mieszane";
+      else if (what.other) ret += " śmieci mieszane";
 
-    if (leave) ret += " na śmietnisku";
+      if (leave) ret += " na śmietnisku";
     return ret;
   }
 
@@ -549,6 +563,7 @@ const eventLog = (function(){
     addOrderApproval: addOrderApproval,
     addCapacityWarning: addCapacityWarning,
     addOrderExecInfo: addOrderExecInfo,
+    addOrderFail: addOrderFail,
     printEvent: printEvent,
     printEvents: printEvents
   }
