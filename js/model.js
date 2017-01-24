@@ -410,7 +410,6 @@ const display = (function() {
   input.onchange = function() {
     var home = null; // na użytek eventloga
     eventLog.addOrder(this.value); //event log księguje input
-    var sense = false; //sprawdza, czy instrukcja ma jakikolwiek sens
     var ptrn = /[0-9]*[0-9]|#\d+|zabierz|zostaw|papier|plastik|szkło|inne|wszystko|śmieci/gi;
     var value = this.value.match(ptrn);
     if(value == null) eventLog.addOrderFail();
