@@ -42,7 +42,7 @@ class Home extends Garbage {
     this.max_garbage = Math.floor((Math.random() * 200) + 100);
     this.status = 0;
     this.id = id;
-    this.warning_flag = false; //określa, czy ostrzegać o przepełnieniu -> EventLog.add_capacity_warning
+    this.warning_flag = false; //określa, czy ostrzegać o przepełnieniu -> eventLog.addCapacityWarning
     this.image.src = 'img/domek_' + Math.floor(Math.random() * 4) + '.png';
   }
 
@@ -58,8 +58,8 @@ class Home extends Garbage {
     if (this.status + amount <= this.max_garbage) {
       this[random] += amount;
       this.setStatus(amount);
-      if((this.status/this.max_garbage * 100) >= 80) {
-        if(!this.warning_flag) EventLog.add_capacity_warning(this.id); 
+      if ((this.status/this.max_garbage * 100) >= 80) {
+        if (!this.warning_flag) eventLog.addCapacityWarning(this.id);
         this.warning_flag = true;
       }
     }
@@ -67,7 +67,7 @@ class Home extends Garbage {
 
   clear(what) {
     this.warning_flag = false;
-    EventLog.add_order_execution_info(this.id);
+    eventLog.addOrderExecInfo(this.id);
     var s;
     for (let e in what) {
       if (what[e] && this[e]) {
@@ -247,7 +247,6 @@ const display = (function() {
                 var a = [full];
           }
 
-          // var a = [full, glass, paper, plastic, other];
           var p = [];
 
           a.forEach(function(el) {
@@ -344,7 +343,7 @@ const display = (function() {
 
 
 (function() {
-  /* 
+  /*
    * -1 - droga
    * 0 - trawa
    * 1 - dom
@@ -409,8 +408,8 @@ const display = (function() {
 
   var input = document.querySelector("input");
   input.onchange = function() {
-    var dom_log = null; // na użytek eventloga
-    EventLog.add_order(this.value); //event log księguje input
+    var home = null; // na użytek eventloga
+    eventLog.addOrder(this.value); //event log księguje input
     var ptrn = /[0-9]*[0-9]|#\d+|zabierz|zostaw|papier|plastik|szkło|inne|wszystko|śmieci/gi;
     var value = this.value.match(ptrn);
     var coord = [];
@@ -421,7 +420,6 @@ const display = (function() {
           paper: false,
           other: false
         };
-  //
 
     value.forEach(function(e) {
       e = e.toString();
@@ -431,22 +429,22 @@ const display = (function() {
         leave = true;
       } else if (/#\d+/gi.test(e)) {
         coord = buildings[e];
-        dom_log = e;
+        home = e;
       } else if (/[0-9]*[0-9]/gi.test(e)) {
         let x =  parseInt(e);
         coord.push(x);
       }
 
       if (pick === true || leave === true) {
-        if(/papier/gi.test(e)) {
+        if (/papier/gi.test(e)) {
           what.paper = true;
-        }  else if(/plastik/gi.test(e)) {
+        }  else if (/plastik/gi.test(e)) {
           what.plastic = true;
-        } else if(/szkło/gi.test(e)) {
+        } else if (/szkło/gi.test(e)) {
           what.glass = true
-        } else if(/inne/gi.test(e)) {
+        } else if (/inne/gi.test(e)) {
           what.other = true;
-        } else if(/wszystko|śmieci/gi.test(e)){
+        } else if (/wszystko|śmieci/gi.test(e)){
           for(e in what) {
             what[e] = true;
           }
@@ -457,95 +455,101 @@ const display = (function() {
       coord = Object.keys(truck.coordinates).map(x => truck.coordinates[x]);
     }
     display.moveTruck(world.map[coord[0]][coord[1]], truck, pick, leave, what);
-    EventLog.add_order_approval(pick, leave, what, dom_log);
+    eventLog.addOrderApproval(pick, leave, what, home);
   }
+}());
 
 
-}())
+const eventLog = (function(){
+  var events = [];
 
-const EventLog = (function(){
-  var logged_events = [];
-
-  const add_order = function(content) {
-    add_event({
+  const addOrder = function(content) {
+    addEvent({
       who: "you",
       input: content
     });
   }
 
-  const add_capacity_warning = function(where) {
-    add_event({
+  const addCapacityWarning = function(where) {
+    addEvent({
       who: "info",
       input: "śmietnik zapełniony w 80% w domku nr " + where
-    })
-  }
-
-  const add_order_execution_info = function(where) {
-    add_event({
-      who: "truck",
-      input: "wykonałam zadanie w domu nr " + where
-    })
-  }
-
-  const add_order_approval = function(pick,leave,what,dom) {
-    add_event({
-      who: "truck",
-      input: create_order_approval(pick,leave,what,dom)
     });
   }
 
-  const print_event = function(which = logged_events.length-1) {
-    return logged_events[which];
+  const addOrderExecInfo = function(where) {
+    addEvent({
+      who: "truck",
+      input: "wykonałam zadanie w domu nr " + where
+    });
   }
 
-  const print_events = function(how_many = logged_events.length) {
+  const addOrderApproval = function(pick,leave,what,dom) {
+    addEvent({
+      who: "truck",
+      input: createOrder(pick,leave,what,dom)
+    });
+  }
+
+  const printEvent = function(which = events.length-1) {
+    return events[which];
+  }
+
+  const printEvents = function(amount = events.length) {
     var ret = "";
-    for(var i = logged_events.length-how_many; i < logged_events.length; i++){
-      temp = print_event(i);
+    for(var i = events.length-amount; i < events.length; i++){
+      temp = printEvent(i);
       ret += (i+1) + ".\t" + temp.who + ": " + temp.input + "\n"
     }
-    return ret; 
-  }
-
-//funkcje prywatne
-  const create_order_approval = function(pick,leave,what,dom) {
-    var ret = ""; 
-    if(pick) ret += "jadę odebrać z domu nr " + dom + "";
-    if(leave) ret += "jadę zostawić";
-    if(what.paper) ret += " papier";
-    if(what.plastic && what.paper) ret += ", plastik"
-    else if(what.plastic) ret += " plastik";
-    if(what.glass && (what.plastic || what.paper)) ret += ", szkło"
-    else if(what.glass) ret += " szkło";
-    if(what.other && (what.plastic || what.paper || what.glass)) ret+= ", śmieci mieszane"
-    else if(what.other) ret+= " śmieci mieszane";
-    if(leave) ret += " na śmietnisku";
     return ret;
   }
 
-  const update_log = function(a, b) {
-    //var event = print_event();
+//funkcje prywatne
+  const createOrder = function(pick,leave,what,dom) {
+    var ret = "";
+
+    if (pick) ret += "jadę odebrać z domu nr " + dom + "";
+    if (leave) ret += "jadę zostawić";
+    if (what.paper) ret += " papier";
+
+    if (what.plastic && what.paper) ret += ", plastik";
+    else if (what.plastic) ret += " plastik";
+
+    if (what.glass && (what.plastic || what.paper)) ret += ", szkło";
+    else if (what.glass) ret += " szkło";
+
+    if (what.other && (what.plastic || what.paper || what.glass)) ret += ", śmieci mieszane";
+    else if (what.other) ret += " śmieci mieszane";
+
+    if (leave) ret += " na śmietnisku";
+    return ret;
+  }
+
+  const updateLog = function(a, b) {
+    var event = printEvent();
+
     var d = document.querySelector(".logs");
     var h = document.createElement("P");
     var s = document.createElement("SPAN");
     s.className = "who " + a;
     var t = document.createTextNode(b);
+
     s.appendChild(t);
     h.appendChild(s);
     d.appendChild(h);
   }
-  
-  const add_event = function(content) {
-    logged_events.push(content);
-    update_log(content.who, content.input);
+
+  const addEvent = function(content) {
+    events.push(content);
+    updateLog(content.who, content.input);
   }
 
   return {
-    add_order: add_order,
-    add_order_approval: add_order_approval,
-    add_capacity_warning: add_capacity_warning,
-    add_order_execution_info: add_order_execution_info,
-    print_event: print_event,
-    print_events: print_events
+    addOrder: addOrder,
+    addOrderApproval: addOrderApproval,
+    addCapacityWarning: addCapacityWarning,
+    addOrderExecInfo: addOrderExecInfo,
+    printEvent: printEvent,
+    printEvents: printEvents
   }
 }());
