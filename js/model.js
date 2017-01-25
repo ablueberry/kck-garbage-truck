@@ -410,7 +410,7 @@ const display = (function() {
   input.onchange = function() {
     var home = null; // na użytek eventloga
     eventLog.addOrder(this.value); //event log księguje input
-    var ptrn = /[0-9]*[0-9]|#\d+|zabierz|zostaw|papier|plastik|szkło|inne|wszystko|śmieci/gi;
+    var ptrn = /[0-9]*[0-9]|#\d+|zabierz|zostaw|papier|plastik|szkło|inne|wszystko|śmieci|śmietnisku|śmietnisko|wysypisko|wysypisku/gi;
     var value = this.value.match(ptrn);
     if(value == null) eventLog.addOrderFail();
     var coord = [];
@@ -431,6 +431,9 @@ const display = (function() {
       } else if (/#\d+/gi.test(e)) {
         coord = buildings[e];
         home = e;
+      } else if (/śmietnisku|śmietnisko|wysypisko|wysypisku/gi.test(e)) {
+        coord = buildings['#2'];
+        home = '#2';
       } else if (/[0-9]*[0-9]/gi.test(e)) {
         let x =  parseInt(e);
         coord.push(x);
