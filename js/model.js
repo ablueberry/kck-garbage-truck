@@ -1,4 +1,4 @@
-class Garbage {
+class Garbage { // nadklasa dla klas zajmujących się składowaniem lub przewożeniem śmieci
   constructor(coordinates, glass = 0, paper = 0, plastic = 0, other = 0) {
     this.coordinates = coordinates;
     this.glass = glass;
@@ -16,7 +16,7 @@ class Garbage {
   }
 }
 
-class Truck extends Garbage {
+class Truck extends Garbage { //  instancją jest obiekt będący śmieciarką, odpowiedzialny za odbiór, transport i wyładowywanie śmieci
   constructor(...args) {
     super(...args);
     this.max_garbage = Math.floor((Math.random() * 700) + 500);
@@ -36,21 +36,21 @@ class Truck extends Garbage {
 
 }
 
-class Home extends Garbage {
+class Home extends Garbage { //  instancją jest dom, zawierający swoje zbiorniki na śmieci, mogący zostać obsłużony przez śmieciarkę
   constructor(id, ...args) {
     super(...args);
     this.max_garbage = Math.floor((Math.random() * 200) + 100);
     this.status = 0;
     this.id = id;
-    this.warning_flag = false; //określa, czy ostrzegać o przepełnieniu -> eventLog.addCapacityWarning
+    this.warning_flag = false; // określa, czy ostrzegać o przepełnieniu -> eventLog.addCapacityWarning
     this.image.src = 'img/domek_' + Math.floor(Math.random() * 4) + '.png';
   }
 
-  setStatus(amount) {
+  setStatus(amount) { // zwiększa zawartość parametru status o podaną wartość
     this.status += amount;
   }
-  // wylosuj ile śmieci sie uzupełnia i które
-  fill() {
+
+  fill() { // losuje ile śmieci się uzupełnia i które
     var types = ['glass', 'paper', 'plastic', 'other'];
     var random = types[Math.floor(types.length * Math.random())];
 
@@ -65,7 +65,7 @@ class Home extends Garbage {
     }
   }
 
-  clear(what) {
+  clear(what) { // zeruje zawartość śmietnika i zwraca wartość, która została z niego usunięta
     this.warning_flag = false;
     eventLog.addOrderExecInfo(this.id);
     var s;
@@ -89,12 +89,11 @@ class Landfill extends Garbage {
     this.image.src = 'img/wysypisko.png';
   }
 
-  setStatus(amount) {
+  setStatus(amount) { // zwiększa parametr status o wartość amount
     this.status += amount;
   }
-
-  // wylosuj ile śmieci ubywa i które
-  empty() {
+ 
+  empty() {  // wylosuj ile śmieci ubywa i które
     var types = ['glass', 'paper', 'plastic', 'other'];
     var random = types[Math.floor(types.length * Math.random())];
 
@@ -140,8 +139,8 @@ class Grass {
 const World = function(map) {
   var count = 0;
 
-  // PRYWATNE FUNKCJE
-  const autoActions = function(map) {
+  // PRYWATNE METODY
+  const autoActions = function(map) { // obsługuje funkcje dziejące się automatycznie
     setInterval(function() {
       // random coord.
       let x = Math.floor(Math.random() * 15);
@@ -164,7 +163,7 @@ const World = function(map) {
     }, 50);
   }
 
-  const initObject = function(symbol, x, y) {
+  const initObject = function(symbol, x, y) { // tworzy elementy wykorzystane w generowaniu wizualizacji
     if (symbol === 0) {
       // trawa
       return new Grass({x: x, y: y})
@@ -183,7 +182,7 @@ const World = function(map) {
     }
   }
 
-  const init = function() {
+  const init = function() { // umieszcza elementy generowane przez initObject na mapie wizualizacji.
 
     // zainicjalizuj wszystkie obiekty
     for (var i = 0; i < map.length; i++) {
@@ -206,7 +205,7 @@ const World = function(map) {
 
 const display = (function() {
 
-  const generateStats = function(stats, map) {
+  const generateStats = function(stats, map) { // generuje w statystyki towarzyszące wizualizacji
     while (stats.querySelector("#homes").firstChild) {
       stats.querySelector("#homes").removeChild(stats.querySelector("#homes").firstChild);
     }
@@ -276,7 +275,7 @@ const display = (function() {
     })
   }
 
-  const renderMap = function(ctx, map, truck) {
+  const renderMap = function(ctx, map, truck) { // renderuje mapę wizualizacji
 
     map.forEach(function(line) {
       line.forEach(function(el) {
@@ -303,7 +302,7 @@ const display = (function() {
     }
   }
 
-  const moveTruck = function(to, truck, pick, leave, what) {
+  const moveTruck = function(to, truck, pick, leave, what) { // przemieszcza śmieciarkę truck w miejsce wskazane przez to i wykonuje wskazaną operację (pick lub leave)
     var interval = setInterval(function () {
       if (truck.coordinates.x !== to.coordinates.x || truck.coordinates.y !== to.coordinates.y) {
         if (truck.coordinates.x < to.coordinates.x) {
@@ -327,7 +326,7 @@ const display = (function() {
       }
     }, 100);
   }
-  const animate = function(ctx, map, truck) {
+  const animate = function(ctx, map, truck) { // animuje poruszanie się ciężarówki 
     var interval = setInterval(function () {
       renderMap(ctx, map, truck);
     }, 200);
@@ -342,7 +341,7 @@ const display = (function() {
 }());
 
 
-(function() {
+(function() { // funkcja inicjująca
   /*
    * -1 - droga
    * 0 - trawa
@@ -351,7 +350,7 @@ const display = (function() {
    * 3 - śmieciarka
    *
   */
-  const map = [
+  const map = [ // zawiera układ obiektów na mapie świata 
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
     [ 0,  0,  0,  0,  1, -1,  1,  0,  0,  0,  0,  0,  2,  0,  0],
@@ -369,21 +368,21 @@ const display = (function() {
     [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0]
   ];
 
-  var canvas = document.querySelector("canvas"),
+  var canvas = document.querySelector("canvas"), // generowanie canvasa wizualizacji w dokumencie HTMl
   ctx = canvas.getContext("2d");
 
   canvas.width = 495;
   canvas.height = 495;
 
 
-  var world = new World(map);
+  var world = new World(map); 
   world.init();
 
 
   var stats = document.querySelector('.stats');
 
   setInterval(function() {
-    display.generateStats(stats, world.map)
+    display.generateStats(stats, world.map) // tworzenie sekcji wyświetlającej statystyki
   }, 1000)
 
   var log = document
@@ -404,15 +403,13 @@ const display = (function() {
     })
   })
 
-  // Obsługa inputa przeniesiona do controllera
-
-  var input = document.querySelector("input");
+  var input = document.querySelector("input"); // przechwytywanie inputu
   input.onchange = function() {
     var home = null; // na użytek eventloga
-    eventLog.addOrder(this.value); //event log księguje input
+    eventLog.addOrder(this.value); // event log księguje input
     var ptrn = /[0-9]*[0-9]|#\d+|zabierz|zostaw|papier|plastik|szkło|inne|wszystko|śmieci|śmietnisku|śmietnisko|wysypisko|wysypisku/gi;
-    var value = this.value.match(ptrn);
-    if(value == null) eventLog.addOrderFail();
+    var value = this.value.match(ptrn); // wyszukiwanie wystąpień słów z ptrn w inpucie
+    if(value == null) eventLog.addOrderFail(); // jeżeli brak rozpoznawalnych słów -> zwraca komunikat
     var coord = [];
     var leave = false, pick = false,
         what =  {
@@ -422,8 +419,8 @@ const display = (function() {
           other: false
         };
 
-    value.forEach(function(e) {
-      e = e.toString();
+    value.forEach(function(e) { // interpretacja zgromadzonych wyrażeń regularnych
+      e = e.toString(); // wyszukiwanie informacji o czynności do wykonania i miejscu przeznaczenia śmieciarki
       if (/zabierz/gi.test(e)) {
         pick = true;
       } else if (/zostaw/gi.test(e)) {
@@ -439,7 +436,7 @@ const display = (function() {
         coord.push(x);
       }
 
-      if (pick === true || leave === true) {
+      if (pick === true || leave === true) { // wyszukiwanie informacji o rodzaju śmieci do obsłużenia
         if (/papier/gi.test(e)) {
           what.paper = true;
         }  else if (/plastik/gi.test(e)) {
@@ -458,60 +455,60 @@ const display = (function() {
     if (!coord[0] || !coord[1]) {
       coord = Object.keys(truck.coordinates).map(x => truck.coordinates[x]);
     }
-    if (home === null || !pick && !leave || !(what.paper || what.plastic || what.glass || what.other)) {
+    if (home === null || !pick && !leave || !(what.paper || what.plastic || what.glass || what.other)) { // sprawdza, czy rozkaz zawiera wszystkie potrzebne parametry
       eventLog.addOrderFail();
-    } //sprawdzam, czy rozkaz zawiera wszystkie potrzebne parametry
+    } 
     else {
-      display.moveTruck(world.map[coord[0]][coord[1]], truck, pick, leave, what);
-      eventLog.addOrderApproval(pick, leave, what, home);
+      display.moveTruck(world.map[coord[0]][coord[1]], truck, pick, leave, what); // gotowy rozkaz dla ciężarówki
+      eventLog.addOrderApproval(pick, leave, what, home); // generowanie potwierdzenia przyjęcia rozkazu
     }
   }
 }());
 
 
-const eventLog = (function(){
+const eventLog = (function(){ // funkcja odpowiedzialna za obsługę czatu i zapisywnie logu komunikacji
   var events = [];
 
-  const addOrder = function(content) {
+  const addOrder = function(content) { // zapisuje rozkaz użytkownika
     addEvent({
       who: "you",
       input: content
     });
   }
 
-  const addCapacityWarning = function(where) {
+  const addCapacityWarning = function(where) { // generuje ostrzeżenie o przepełnianiu śmietnika
     addEvent({
       who: "info",
       input: "śmietnik zapełniony w 80% w domku nr " + where
     });
   }
 
-  const addOrderExecInfo = function(where) {
+  const addOrderExecInfo = function(where) { // generuje potwierdzenia wykonania zadania przez śmieciarkę
     addEvent({
       who: "truck",
-      input: "wykonałam zadanie w domu nr " + where
+      input: "wykonałam zadanie w domu nr " + where 
     });
   }
 
-  const addOrderApproval = function(pick,leave,what,dom) {
+  const addOrderApproval = function(pick,leave,what,dom) { // generuje potwierdzenie przyjęcia rozkazu przez śmieciarkę
     addEvent({
       who: "truck",
       input: createOrder(pick,leave,what,dom)
     });
   }
 
-  const addOrderFail = function() {
+  const addOrderFail = function() { // generuje informację o niezrozumieniu polecenia
     addEvent({
       who: "truck",
       input: "nie rozumiem polecenia"
     })
   }
 
-  const printEvent = function(which = events.length-1) {
+  const printEvent = function(which = events.length-1) { // zwraca wskazany zapis wydarzenia (domyślnie ostatni) 
     return events[which];
   }
 
-  const printEvents = function(amount = events.length) {
+  const printEvents = function(amount = events.length) { // zwraca string zawierający wskazaną liczbę ostatnich wydarzeń (domyślnie wszystkie)
     var ret = "";
     for(var i = events.length-amount; i < events.length; i++){
       temp = printEvent(i);
@@ -521,7 +518,7 @@ const eventLog = (function(){
   }
 
 //funkcje prywatne
-  const createOrder = function(pick,leave,what,dom) {
+  const createOrder = function(pick,leave,what,dom) { // generuje zawartość potwierdzenia rozkazu na podstawie wyparsowanego inputu
     var ret = "";
     if (pick) ret += "jadę odebrać z domu nr " + dom;
     if (leave) ret += "jadę zostawić";
@@ -542,7 +539,7 @@ const eventLog = (function(){
     return ret;
   }
 
-  const updateLog = function(a, b) {
+  const updateLog = function(a, b) { // drukuje w dokumencie HTML zawartość okna czatu
     var event = printEvent();
 
     var d = document.querySelector(".logs");
@@ -556,7 +553,7 @@ const eventLog = (function(){
     d.appendChild(h);
   }
 
-  const addEvent = function(content) {
+  const addEvent = function(content) { // dodaje wydarzenie do tablicy i aktualizuje okno czatu
     events.push(content);
     updateLog(content.who, content.input);
   }
